@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:url_launcher/url_launcher.dart'; 
+import 'package:url_launcher/url_launcher.dart';
 import 'login_page.dart';
-import 'product.dart'; 
-import 'payment_page.dart'; 
-import 'update_profile_page.dart'; 
+import 'product.dart';
+import 'payment_page.dart';
+import 'update_profile_page.dart';
 
 class DashboardProductsPage extends StatefulWidget {
   const DashboardProductsPage({super.key});
@@ -12,6 +12,7 @@ class DashboardProductsPage extends StatefulWidget {
   @override
   DashboardProductsPageState createState() => DashboardProductsPageState();
 }
+
 class DashboardProductsPageState extends State<DashboardProductsPage> {
   String? _namaLengkap;
   int _totalJual = 0;
@@ -124,14 +125,14 @@ class DashboardProductsPageState extends State<DashboardProductsPage> {
     switch (value) {
       case 'call':
         url = 'tel:+6281234567890';
-        break; 
+        break;
       case 'sms':
         url = 'sms:+6281234567890';
-        break; 
+        break;
       case 'maps':
         url =
             'https://www.google.com/maps/search/?api=1&query=Desa+Pakis+Beringin+Semarang';
-        break; 
+        break;
       case 'update':
         if (!mounted) return;
         Navigator.push(
@@ -155,14 +156,14 @@ class DashboardProductsPageState extends State<DashboardProductsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kremColor, 
+      backgroundColor: kremColor,
       appBar: AppBar(
-        backgroundColor: coklatTuaColor, 
-        foregroundColor: kremColor, 
+        backgroundColor: coklatTuaColor,
+        foregroundColor: kremColor,
         title: Row(
           children: [
             Image.asset(
-              'assets/images/logo.png', 
+              'assets/images/logo.png',
               height: 30,
               errorBuilder: (context, error, stackTrace) =>
                   const Icon(Icons.storefront),
@@ -285,15 +286,34 @@ class DashboardProductsPageState extends State<DashboardProductsPage> {
             ),
           ),
           InkWell(
-            onTap: () {
+            onTap: () async {
+              // <--- Pastikan ada 'async' di sini
               if (_totalJual > 0) {
-                if (!mounted) return;
-                Navigator.push(
+                // 1. Kita tunggu (await) sampai PaymentPage selesai & tutup
+                final result = await Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => PaymentPage(totalAmount: _totalJual),
                   ),
                 );
+
+                // 2. Cek apakah PaymentPage mengirim sinyal 'true' (artinya sukses bayar)
+                if (result == true) {
+                  setState(() {
+                    _totalJual = 0; // Reset total
+                    _lastAddedPrice = 0; // Reset history undo
+                  });
+
+                  // Opsional: Pesan kecil bahwa keranjang sudah kosong
+                  if (!mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Pembayaran selesai, keranjang dikosongkan.',
+                      ),
+                    ),
+                  );
+                }
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Total penjualan masih nol!')),
@@ -305,11 +325,10 @@ class DashboardProductsPageState extends State<DashboardProductsPage> {
               padding: const EdgeInsets.symmetric(
                 horizontal: 16.0,
                 vertical: 10.0,
-              ), 
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment:
-                    CrossAxisAlignment.center, 
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Row(
                     children: [
@@ -318,31 +337,26 @@ class DashboardProductsPageState extends State<DashboardProductsPage> {
                           Icons.undo,
                           color: coklatTuaColor,
                           size: 20,
-                        ), 
+                        ),
                         onPressed: _undoLastAdd,
                         tooltip: 'Batalkan Penambahan Terakhir',
-                        padding: const EdgeInsets.only(
-                          right: 8,
-                        ), 
+                        padding: const EdgeInsets.only(right: 8),
                         constraints: const BoxConstraints(),
                       ),
                       Text(
-                        _namaLengkap ??
-                            'Pelanggan', 
+                        _namaLengkap ?? 'Pelanggan',
                         style: const TextStyle(
                           fontSize: 14,
                           color: coklatMudaColor,
                           fontWeight: FontWeight.w500,
                         ),
-                        overflow: TextOverflow
-                            .ellipsis,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
-                    mainAxisSize: MainAxisSize
-                        .min,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       const Text(
                         'Total Penjualan:',
