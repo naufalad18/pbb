@@ -1,0 +1,35 @@
+name: projek # Pastikan ini nama proyekmu
+description: "A new Flutter project."
+publish_to: 'none' 
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.9.2 # Pastikan versi Dart SDK kamu sesuai
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  
+  # --- DEPENDENCIES YANG DIBUTUHKAN ---
+  shared_preferences: ^2.2.2 # Untuk menyimpan data login
+  url_launcher: ^6.0.0      # Untuk membuka Call, SMS, Maps
+  # ------------------------------------
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0 # Ganti versi jika perlu
+
+flutter:
+
+
+  uses-material-design: true
+
+  assets:
+    - assets/images/ 
+
+  # fonts:
+  #   - family: Schyler
+  #     fonts:
+  #       - asset: fonts/Schyler-Regular.ttf
