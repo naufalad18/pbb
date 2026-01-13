@@ -7,7 +7,7 @@ class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
@@ -17,27 +17,40 @@ class _LoginPageState extends State<LoginPage> {
   static const Color kremColor = Color(0xFFFDF5E6);
   static const Color coklatTuaColor = Color(0xFF5D4037);
   static const Color coklatMudaColor = Color(0xFF8D6E63);
-  static const Color emasColor = Color(0xFFB8860B);
 
-  // Fungsi untuk proses Login
-  void _login() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? savedUsername = prefs.getString('username');
-    String? savedPassword = prefs.getString('password');
-    String inputUsername = _usernameController.text;
-    String inputPassword = _passwordController.text;
+  Future<void> _login() async {
+    final prefs = await SharedPreferences.getInstance();
 
-    if (savedUsername != null &&
-        savedPassword != null &&
-        savedUsername == inputUsername &&
-        savedPassword == inputPassword) {
-      if (!mounted) return; 
+    final savedUsername = prefs.getString('username');
+    final savedPassword = prefs.getString('password');
+
+    final inputUsername = _usernameController.text.trim();
+    final inputPassword = _passwordController.text.trim();
+
+    if (inputUsername.isEmpty || inputPassword.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Username dan Password wajib diisi')),
+      );
+      return;
+    }
+
+    if (savedUsername == null || savedPassword == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Akun belum terdaftar, silakan registrasi'),
+        ),
+      );
+      return;
+    }
+
+    if (savedUsername == inputUsername && savedPassword == inputPassword) {
+      if (!mounted) return;
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const DashboardProductsPage()),
       );
     } else {
-      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Username atau Password salah!')),
       );
@@ -50,68 +63,35 @@ class _LoginPageState extends State<LoginPage> {
       body: Container(
         color: kremColor,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 80.0),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 80),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Center(
                 child: Container(
-                  padding: const EdgeInsets.all(15.0),
+                  padding: const EdgeInsets.all(15),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.7),
-                    borderRadius: BorderRadius.circular(20.0),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.08),
-                        spreadRadius: 1,
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                  child: Image.asset(
-                    'assets/images/logo.png', 
-                    height: 100, 
-                  ),
+                  child: Image.asset('assets/images/logo.png', height: 100),
                 ),
               ),
-              const SizedBox(height: 50), 
+              const SizedBox(height: 50),
 
               TextField(
                 controller: _usernameController,
                 decoration: InputDecoration(
                   labelText: 'Username',
-                  labelStyle: TextStyle(color: coklatMudaColor), 
-                  prefixIcon: Icon(
-                    Icons.person_outline,
-                    color: coklatTuaColor,
-                  ), 
+                  labelStyle: TextStyle(color: coklatMudaColor),
+                  prefixIcon: Icon(Icons.person_outline, color: coklatTuaColor),
                   filled: true,
-                  fillColor: Colors.white.withOpacity(
-                    0.9,
-                  ), 
+                  fillColor: Colors.white,
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
+                    borderRadius: BorderRadius.circular(10),
                     borderSide: BorderSide.none,
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(
-                      color: coklatMudaColor.withOpacity(0.5),
-                    ), 
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: const BorderSide(
-                      color: coklatTuaColor,
-                      width: 2.0,
-                    ), 
-                  ),
                 ),
-                style: const TextStyle(
-                  color: coklatTuaColor,
-                ), 
               ),
               const SizedBox(height: 20),
 
@@ -123,41 +103,27 @@ class _LoginPageState extends State<LoginPage> {
                   labelStyle: TextStyle(color: coklatMudaColor),
                   prefixIcon: Icon(Icons.lock_outline, color: coklatTuaColor),
                   filled: true,
-                  fillColor: Colors.white.withOpacity(0.9),
+                  fillColor: Colors.white,
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
+                    borderRadius: BorderRadius.circular(10),
                     borderSide: BorderSide.none,
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(
-                      color: coklatMudaColor.withOpacity(0.5),
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: const BorderSide(
-                      color: coklatTuaColor,
-                      width: 2.0,
-                    ),
-                  ),
                 ),
-                style: const TextStyle(color: coklatTuaColor),
               ),
               const SizedBox(height: 40),
 
               ElevatedButton(
                 onPressed: _login,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: coklatTuaColor, 
+                  backgroundColor: coklatTuaColor,
                   padding: const EdgeInsets.symmetric(vertical: 15),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
                 child: const Text(
                   'Login',
-                  style: TextStyle(color: kremColor, fontSize: 16), 
+                  style: TextStyle(color: kremColor, fontSize: 16),
                 ),
               ),
               const SizedBox(height: 20),
@@ -175,7 +141,7 @@ class _LoginPageState extends State<LoginPage> {
                   child: const Text(
                     'Belum punya akun? Registrasi!',
                     style: TextStyle(
-                      color: coklatTuaColor, 
+                      color: coklatTuaColor,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
