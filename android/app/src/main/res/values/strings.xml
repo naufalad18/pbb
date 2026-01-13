@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Blingkis App</string>
+
+    <string name="facebook_app_id">1328318382647085</string>
+    <string name="fb_login_protocol_scheme">fb1328318382647085</string>
+    <string name="facebook_client_token">3b235004a39e62dd3aa50f5a520a4f7d</string>
+</resources>

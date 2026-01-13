@@ -1,7 +1,17 @@
 import 'package:flutter/material.dart';
-import 'splash_screen.dart'; 
+import 'package:firebase_core/firebase_core.dart'; // [WAJIB]
+import 'firebase_options.dart'; // [WAJIB] File hasil configure tadi
+import 'login_page.dart'; // Halaman login yang baru kita edit
 
-void main() {
+void main() async {
+  // 1. Pastikan binding aktif
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // 2. Nyalakan Firebase (Wajib ada agar tidak error)
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   runApp(const MyApp());
 }
 
@@ -12,11 +22,14 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'UMKM Blangkis', 
+      title: 'Aplikasi Blingkis',
       theme: ThemeData(
-        primarySwatch: Colors.indigo, 
+        // Sesuaikan warna tema Mas Naufal
+        primarySwatch: Colors.brown,
+        useMaterial3: true,
       ),
-      home: const SplashScreen(),
+      // Langsung panggil halaman Login
+      home: const LoginPage(),
     );
   }
 }

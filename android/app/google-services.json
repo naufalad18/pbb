@@ -1,0 +1,98 @@
+{
+  "project_info": {
+    "project_number": "100106142192",
+    "project_id": "blingkis-pbb",
+    "storage_bucket": "blingkis-pbb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:100106142192:android:05403c22cc95bb8c829d35",
+        "android_client_info": {
+          "package_name": "com.example.projek"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "100106142192-tusegeoit2a50hk9um0hmf3k9fhhtfkc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.projek",
+            "certificate_hash": "6b2cdab524cee74f211611b1d53c60409b3fdb19"
+          }
+        },
+        {
+          "client_id": "100106142192-3fg4q93icsfsafreg39rg25jurppmhun.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBA1g75Gbci9WGuQGgCQ2fM046iJmGfrpc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "100106142192-3fg4q93icsfsafreg39rg25jurppmhun.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "100106142192-v47rpkabb3sakjof324npgv2l1qr1kge.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.projek"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:100106142192:android:1360276cdc39271f829d35",
+        "android_client_info": {
+          "package_name": "com.naufal.blingkis"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "100106142192-45oirmpeghmu2ld722vgc3t9k54uf7kh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.naufal.blingkis",
+            "certificate_hash": "6b2cdab524cee74f211611b1d53c60409b3fdb19"
+          }
+        },
+        {
+          "client_id": "100106142192-3fg4q93icsfsafreg39rg25jurppmhun.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBA1g75Gbci9WGuQGgCQ2fM046iJmGfrpc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "100106142192-3fg4q93icsfsafreg39rg25jurppmhun.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "100106142192-v47rpkabb3sakjof324npgv2l1qr1kge.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.projek"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

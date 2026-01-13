@@ -1,34 +1,54 @@
-name: projek # Pastikan ini nama proyekmu
+name: projek
 description: "A new Flutter project."
-publish_to: 'none' 
+publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.0.0 # Saya ubah sedikit ke 3.0.0 agar lebih aman (kompatibel banyak versi)
+  sdk: ^3.0.0
 
 dependencies:
   flutter:
     sdk: flutter
+  
+  # --- UI & Utilities Dasar ---
   cupertino_icons: ^1.0.8
   shared_preferences: ^2.2.2
   url_launcher: ^6.0.0
+  
+  # --- Database Lokal (SQLite) ---
   sqflite: ^2.3.0
   path: ^1.9.0
   
-  # --- TAMBAHAN BARU (WAJIB ADA) ---
+  # --- Fitur Tambahan (PDF, Gambar, Format Uang) ---
   intl: ^0.19.0           # Untuk format Rupiah & Tanggal
-  image_picker: ^1.0.7    # Untuk upload foto bukti bayar
-  pdf: ^3.10.4          # (Opsional) Jika nanti ingin fitur PDF
-  printing: ^5.11.1     # (Opsional) Jika nanti ingin fitur Print
-  # ---------------------------------
+  image_picker: ^1.0.7    # Untuk upload foto
+  pdf: ^3.10.4            # Untuk bikin laporan PDF
+  printing: ^5.11.1       # Untuk fitur print/save PDF
+
+  # --- FITUR FIREBASE, LOGIN GOOGLE & FACEBOOK ---
+  firebase_core: ^3.0.0   
+  firebase_auth: ^5.0.0   
+  google_sign_in: ^6.2.0  
+  flutter_facebook_auth: ^7.1.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
+  # TAMBAHAN UNTUK GANTI LOGO OTOMATIS
+  flutter_launcher_icons: ^0.13.1
+
+# KONFIGURASI LOGO BLINGKIS
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/logo.png"
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/images/logo.png"
 
 flutter:
   uses-material-design: true
 
   assets:
     - assets/images/
+    - assets/images/logo.png
