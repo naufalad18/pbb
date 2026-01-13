@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'db_helper.dart'; // Import Database Helper
+import 'login_page.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -9,130 +10,137 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  final TextEditingController _namaController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
 
   static const Color kremColor = Color(0xFFFDF5E6);
   static const Color coklatTuaColor = Color(0xFF5D4037);
   static const Color coklatMudaColor = Color(0xFF8D6E63);
 
   Future<void> _register() async {
-    if (_namaController.text.isEmpty ||
-        _usernameController.text.isEmpty ||
-        _passwordController.text.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Semua field harus diisi!')));
+    final username = _usernameController.text.trim();
+    final password = _passwordController.text.trim();
+    final confirm = _confirmPasswordController.text.trim();
+
+    // 1. Validasi Input Kosong
+    if (username.isEmpty || password.isEmpty || confirm.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Semua kolom harus diisi!')),
+      );
       return;
     }
 
-    final prefs = await SharedPreferences.getInstance();
+    // 2. Validasi Password Sama
+    if (password != confirm) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Password dan Konfirmasi tidak sama!')),
+      );
+      return;
+    }
 
-    // SIMPAN DATA USER (INI YANG DIPAKAI LOGIN)
-    await prefs.setString('nama_lengkap', _namaController.text.trim());
-    await prefs.setString('username', _usernameController.text.trim());
-    await prefs.setString('password', _passwordController.text.trim());
+    // 3. Proses Simpan ke Database
+    try {
+      final db = DbHelper();
 
-    if (!mounted) return;
+      // Masukkan ke tabel 'users'
+      // Secara default, yang daftar lewat sini role-nya adalah 'user' (konsumen)
+      await db.database.then((database) async {
+        await database.insert('users', {
+          'username': username,
+          'password': password,
+          'role': 'user', // Otomatis jadi User Biasa
+        });
+      });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Registrasi berhasil! Silakan login.')),
-    );
+      if (!mounted) return;
 
-    Navigator.pop(context); // balik ke LoginPage
-  }
+      // 4. Sukses & Arahkan ke Login
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Registrasi Berhasil! Silakan Login.')),
+      );
 
-  void _reset() {
-    _namaController.clear();
-    _usernameController.clear();
-    _passwordController.clear();
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+      );
+    } catch (e) {
+      // Error biasanya kalau username sudah ada (karena kita set UNIQUE di database)
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Username sudah digunakan, pilih yang lain!')),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: kremColor,
       appBar: AppBar(
-        title: const Text('Registrasi Akun'),
+        title: const Text("Registrasi Akun"),
         backgroundColor: coklatTuaColor,
         foregroundColor: kremColor,
       ),
-      body: Container(
-        color: kremColor,
-        padding: const EdgeInsets.all(24),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              TextField(
-                controller: _namaController,
-                decoration: _inputDecoration(
-                  'Nama Lengkap',
-                  Icons.badge_outlined,
-                ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Icon(Icons.person_add, size: 80, color: coklatTuaColor),
+            const SizedBox(height: 30),
+            TextField(
+              controller: _usernameController,
+              decoration: InputDecoration(
+                labelText: 'Username Baru',
+                filled: true,
+                fillColor: Colors.white,
+                prefixIcon: const Icon(Icons.person, color: coklatTuaColor),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
               ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: _usernameController,
-                decoration: _inputDecoration('Username', Icons.person_outline),
+            ),
+            const SizedBox(height: 20),
+            TextField(
+              controller: _passwordController,
+              obscureText: true,
+              decoration: InputDecoration(
+                labelText: 'Password',
+                filled: true,
+                fillColor: Colors.white,
+                prefixIcon: const Icon(Icons.lock, color: coklatTuaColor),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
               ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: _passwordController,
-                obscureText: true,
-                decoration: _inputDecoration('Password', Icons.lock_outline),
+            ),
+            const SizedBox(height: 20),
+            TextField(
+              controller: _confirmPasswordController,
+              obscureText: true,
+              decoration: InputDecoration(
+                labelText: 'Ulangi Password',
+                filled: true,
+                fillColor: Colors.white,
+                prefixIcon: const Icon(Icons.lock_reset, color: coklatTuaColor),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
               ),
-              const SizedBox(height: 40),
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: _register,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: coklatTuaColor,
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                      ),
-                      child: const Text(
-                        'Submit',
-                        style: TextStyle(color: kremColor),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 20),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: _reset,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: coklatMudaColor,
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                      ),
-                      child: const Text(
-                        'Reset',
-                        style: TextStyle(color: kremColor),
-                      ),
-                    ),
-                  ),
-                ],
+            ),
+            const SizedBox(height: 30),
+            ElevatedButton(
+              onPressed: _register,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: coklatTuaColor,
+                padding: const EdgeInsets.symmetric(vertical: 15),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
               ),
-            ],
-          ),
+              child: const Text('DAFTAR SEKARANG',
+                  style: TextStyle(color: kremColor, fontSize: 16)),
+            ),
+          ],
         ),
-      ),
-    );
-  }
-
-  InputDecoration _inputDecoration(String label, IconData icon) {
-    return InputDecoration(
-      labelText: label,
-      prefixIcon: Icon(icon, color: coklatTuaColor),
-      filled: true,
-      fillColor: Colors.white,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: BorderSide.none,
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: coklatTuaColor, width: 2),
       ),
     );
   }

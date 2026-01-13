@@ -4,7 +4,7 @@ publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.9.2 # Pastikan versi Dart SDK kamu sesuai
+  sdk: ^3.0.0 # Saya ubah sedikit ke 3.0.0 agar lebih aman (kompatibel banyak versi)
 
 dependencies:
   flutter:
@@ -14,21 +14,21 @@ dependencies:
   url_launcher: ^6.0.0
   sqflite: ^2.3.0
   path: ^1.9.0
+  
+  # --- TAMBAHAN BARU (WAJIB ADA) ---
+  intl: ^0.19.0           # Untuk format Rupiah & Tanggal
+  image_picker: ^1.0.7    # Untuk upload foto bukti bayar
+  pdf: ^3.10.4          # (Opsional) Jika nanti ingin fitur PDF
+  printing: ^5.11.1     # (Opsional) Jika nanti ingin fitur Print
+  # ---------------------------------
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^5.0.0 # Ganti versi jika perlu
+  flutter_lints: ^2.0.0
 
 flutter:
-
-
   uses-material-design: true
 
   assets:
-    - assets/images/ 
-
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
+    - assets/images/

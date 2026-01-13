@@ -13,6 +13,7 @@ class Product {
     required this.gambar,
   });
 
+  // Mengubah data dari Map (Database) ke Object Product
   factory Product.fromMap(Map<String, dynamic> map) {
     return Product(
       id: map['id'],
@@ -21,5 +22,17 @@ class Product {
       harga: map['harga'],
       gambar: map['gambar'],
     );
+  }
+
+  // --- BAGIAN INI YANG TADI HILANG ---
+  // Mengubah Object Product ke Map (untuk disimpan ke Database)
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'nama': nama,
+      'deskripsi': deskripsi,
+      'harga': harga,
+      'gambar': gambar,
+    };
   }
 }

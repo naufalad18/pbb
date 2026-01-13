@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dashboard_page.dart';
+import 'admin_dashboard_page.dart'; // Import halaman admin
 import 'register_page.dart';
+import 'db_helper.dart'; // Import database helper
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -19,11 +21,6 @@ class _LoginPageState extends State<LoginPage> {
   static const Color coklatMudaColor = Color(0xFF8D6E63);
 
   Future<void> _login() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    final savedUsername = prefs.getString('username');
-    final savedPassword = prefs.getString('password');
-
     final inputUsername = _usernameController.text.trim();
     final inputPassword = _passwordController.text.trim();
 
@@ -34,23 +31,37 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
-    if (savedUsername == null || savedPassword == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Akun belum terdaftar, silakan registrasi'),
-        ),
-      );
-      return;
-    }
+    // CEK LOGIN KE DATABASE
+    final user = await DbHelper().checkLogin(inputUsername, inputPassword);
 
-    if (savedUsername == inputUsername && savedPassword == inputPassword) {
+    if (user != null) {
+      // Login Berhasil
+      final role = user['role'];
+
+      // Simpan sesi login (Opsional, agar tidak login ulang terus)
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('username', user['username']);
+      await prefs.setString('role', role);
+
       if (!mounted) return;
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const DashboardProductsPage()),
-      );
+      if (role == 'admin') {
+        // Masuk Halaman Admin
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const AdminDashboardPage()),
+        );
+      } else {
+        // Masuk Halaman Customer (Produk)
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (context) => const DashboardProductsPage()),
+        );
+      }
     } else {
+      // Login Gagal
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Username atau Password salah!')),
       );
@@ -74,7 +85,12 @@ class _LoginPageState extends State<LoginPage> {
                     color: Colors.white.withOpacity(0.7),
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: Image.asset('assets/images/logo.png', height: 100),
+                  child: Image.asset(
+                    'assets/images/logo.png',
+                    height: 100,
+                    errorBuilder: (ctx, err, stack) => const Icon(Icons.store,
+                        size: 80, color: coklatTuaColor),
+                  ),
                 ),
               ),
               const SizedBox(height: 50),
@@ -83,8 +99,11 @@ class _LoginPageState extends State<LoginPage> {
                 controller: _usernameController,
                 decoration: InputDecoration(
                   labelText: 'Username',
-                  labelStyle: TextStyle(color: coklatMudaColor),
-                  prefixIcon: Icon(Icons.person_outline, color: coklatTuaColor),
+                  hintText:
+                      'Coba: admin atau user', // Hint untuk memudahkan test
+                  labelStyle: const TextStyle(color: coklatMudaColor),
+                  prefixIcon:
+                      const Icon(Icons.person_outline, color: coklatTuaColor),
                   filled: true,
                   fillColor: Colors.white,
                   border: OutlineInputBorder(
@@ -100,8 +119,10 @@ class _LoginPageState extends State<LoginPage> {
                 obscureText: true,
                 decoration: InputDecoration(
                   labelText: 'Password',
-                  labelStyle: TextStyle(color: coklatMudaColor),
-                  prefixIcon: Icon(Icons.lock_outline, color: coklatTuaColor),
+                  hintText: 'Coba: admin atau user',
+                  labelStyle: const TextStyle(color: coklatMudaColor),
+                  prefixIcon:
+                      const Icon(Icons.lock_outline, color: coklatTuaColor),
                   filled: true,
                   fillColor: Colors.white,
                   border: OutlineInputBorder(
@@ -146,6 +167,33 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                 ),
+              ),
+
+              // Opsi Login Sosmed (Dummy)
+              const SizedBox(height: 20),
+              const Text("Atau masuk dengan:", textAlign: TextAlign.center),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: () {},
+                    icon: const Icon(Icons.g_mobiledata),
+                    label: const Text("Google"),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white),
+                  ),
+                  const SizedBox(width: 10),
+                  ElevatedButton.icon(
+                    onPressed: () {},
+                    icon: const Icon(Icons.facebook),
+                    label: const Text("Facebook"),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white),
+                  ),
+                ],
               ),
             ],
           ),

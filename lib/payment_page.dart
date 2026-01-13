@@ -1,4 +1,7 @@
+import 'dart:io'; // 1. Import untuk File gambar
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart'; // 2. Import untuk ambil foto
+import 'db_helper.dart'; // 3. Import agar bisa simpan ke database
 
 class PaymentPage extends StatefulWidget {
   final int totalAmount;
@@ -23,6 +26,10 @@ class _PaymentPageState extends State<PaymentPage> {
   int _biayaOngkir = 0;
   int _jumlahBayar = 0;
   int _kembalian = 0;
+
+  // Variabel untuk Bukti Pembayaran
+  File? _imageFile;
+  final ImagePicker _picker = ImagePicker();
 
   static const Color kremColor = Color(0xFFFDF5E6);
   static const Color coklatTuaColor = Color(0xFF5D4037);
@@ -55,7 +62,21 @@ class _PaymentPageState extends State<PaymentPage> {
     });
   }
 
-  void _processPayment() {
+  // Fungsi Baru: Ambil Foto dari Galeri
+  Future<void> _pickImage() async {
+    final XFile? pickedFile = await _picker.pickImage(
+      source: ImageSource.gallery,
+    );
+    if (pickedFile != null) {
+      setState(() {
+        _imageFile = File(pickedFile.path);
+      });
+    }
+  }
+
+  // Fungsi Update: Simpan ke DB & Tampilkan Nota
+  Future<void> _processPayment() async {
+    // 1. Validasi Uang
     if (_jumlahBayar < _totalBayarAkhir) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -66,7 +87,31 @@ class _PaymentPageState extends State<PaymentPage> {
       return;
     }
 
-    // TAMPILKAN NOTA (Sesuai Soal)
+    // 2. Validasi Bukti Foto (Sesuai Soal: Ada upload bukti)
+    if (_imageFile == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Harap upload bukti pembayaran!'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // 3. SIMPAN KE DATABASE (Agar muncul di History)
+    await DbHelper().insertTransaction({
+      'tanggal': DateTime.now().toString(),
+      'total_belanja': widget.totalAmount,
+      'ongkir': _biayaOngkir,
+      'grand_total': _totalBayarAkhir,
+      'kurir': _selectedKurir,
+      // Jika ingin simpan path gambar juga, pastikan tabel DB support kolom ini
+      // 'bukti_path': _imageFile!.path,
+    });
+
+    if (!mounted) return;
+
+    // 4. TAMPILKAN NOTA
     showDialog(
       context: context,
       barrierDismissible: false, // User harus klik tombol tutup
@@ -77,6 +122,12 @@ class _PaymentPageState extends State<PaymentPage> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const Center(
+                child: Text(
+                  "Transaksi Berhasil Disimpan!",
+                  style: TextStyle(color: Colors.green, fontSize: 12),
+                ),
+              ),
               const Divider(),
               _buildNotaRow("Harga Produk", widget.totalAmount),
               _buildNotaRow("Ongkos Kirim", _biayaOngkir),
@@ -222,6 +273,45 @@ class _PaymentPageState extends State<PaymentPage> {
               ),
             ),
             const SizedBox(height: 20),
+
+            // --- INPUT BUKTI PEMBAYARAN (BARU) ---
+            const Text(
+              "Bukti Pembayaran",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: coklatTuaColor,
+              ),
+            ),
+            const SizedBox(height: 8),
+            GestureDetector(
+              onTap: _pickImage,
+              child: Container(
+                height: 150,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: _imageFile == null
+                    ? const Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.camera_alt, size: 50, color: Colors.grey),
+                          Text(
+                            "Ketuk untuk upload foto",
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        ],
+                      )
+                    : ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image.file(_imageFile!, fit: BoxFit.cover),
+                      ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            // -------------------------------------
 
             // Input Pembayaran
             TextField(

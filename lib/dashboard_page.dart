@@ -1,3 +1,4 @@
+import 'dart:io'; // Tambahkan import ini
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -6,6 +7,7 @@ import 'product.dart';
 import 'payment_page.dart';
 import 'update_profile_page.dart';
 import 'db_helper.dart';
+import 'history_page.dart';
 
 class DashboardProductsPage extends StatefulWidget {
   const DashboardProductsPage({super.key});
@@ -46,6 +48,27 @@ class _DashboardProductsPageState extends State<DashboardProductsPage> {
       products = data;
     });
   }
+
+  // --- FUNGSI BARU UNTUK HANDLE GAMBAR ---
+  Widget _buildProductImage(String gambar) {
+    if (gambar.contains('/') && File(gambar).existsSync()) {
+      return Image.file(
+        File(gambar),
+        width: 60,
+        height: 60,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => const Icon(Icons.broken_image),
+      );
+    }
+    return Image.asset(
+      'assets/images/$gambar',
+      width: 60,
+      height: 60,
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) => const Icon(Icons.image_not_supported),
+    );
+  }
+  // ----------------------------------------
 
   void _logout() {
     Navigator.pushReplacement(
@@ -92,7 +115,6 @@ class _DashboardProductsPageState extends State<DashboardProductsPage> {
 
   void _handleMenuAction(String value) async {
     Uri? uri;
-
     switch (value) {
       case 'call':
         uri = Uri.parse('tel:+6281234567890');
@@ -102,9 +124,14 @@ class _DashboardProductsPageState extends State<DashboardProductsPage> {
         break;
       case 'maps':
         uri = Uri.parse(
-          'https://www.google.com/maps/search/?api=1&query=Desa+Pakis+Beringin+Semarang',
-        );
+            'https://www.google.com/maps/search/?api=1&query=Desa+Pakis+Beringin+Semarang');
         break;
+      case 'history':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const HistoryPage()),
+        );
+        return;
       case 'update':
         Navigator.push(
           context,
@@ -154,6 +181,7 @@ class _DashboardProductsPageState extends State<DashboardProductsPage> {
               PopupMenuItem(value: 'call', child: Text('Call Center')),
               PopupMenuItem(value: 'sms', child: Text('SMS Center')),
               PopupMenuItem(value: 'maps', child: Text('Lokasi / Maps')),
+              PopupMenuItem(value: 'history', child: Text('Riwayat Belanja')),
               PopupMenuDivider(),
               PopupMenuItem(value: 'update', child: Text('Update User')),
             ],
@@ -175,20 +203,18 @@ class _DashboardProductsPageState extends State<DashboardProductsPage> {
                         child: ListTile(
                           leading: GestureDetector(
                             onTap: () => _addToTotal(p.harga),
-                            child: Image.asset(
-                              'assets/images/${p.gambar}',
-                              width: 60,
-                              errorBuilder: (_, __, ___) =>
-                                  const Icon(Icons.image_not_supported),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(5),
+                              child: _buildProductImage(
+                                  p.gambar), // GUNAKAN FUNGSI BARU
                             ),
                           ),
                           title: InkWell(
                             onTap: () => _showDescription(p.nama, p.deskripsi),
                             child: Text(
                               p.nama,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
                             ),
                           ),
                           subtitle: Text('Rp. ${p.harga}'),
@@ -197,7 +223,6 @@ class _DashboardProductsPageState extends State<DashboardProductsPage> {
                     },
                   ),
           ),
-
           InkWell(
             onTap: _goToPayment,
             child: Container(
